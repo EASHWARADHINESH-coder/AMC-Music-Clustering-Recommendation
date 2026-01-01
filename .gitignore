@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+
+# Data (large files)
+data/raw/
+*.csv
+
+# Models
+*.pkl
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
