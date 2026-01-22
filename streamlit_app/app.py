@@ -67,7 +67,7 @@ if not cluster_features:
     st.stop()
 
 if 'cluster' not in df_amc.columns:
-    kmeans = KMeans(n_clusters=3, random_state=42)  # change n_clusters as needed
+    kmeans = KMeans(n_clusters=4, random_state=42)  # change n_clusters as needed
     df_amc['cluster'] = kmeans.fit_predict(df_amc[cluster_features])
 
 # SAFETY CHECK
