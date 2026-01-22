@@ -19,6 +19,12 @@ st.write("Explore song clusters based on audio features")
 @st.cache_data
 def load_data():
     file_path = os.path.join(os.path.dirname(__file__), "single_genre_artists.csv")
+    
+    # Check if file exists before reading
+    if not os.path.exists(file_path):
+        st.error(f"CSV file not found at: {file_path}")
+        return pd.DataFrame()  # return empty DataFrame to avoid crashes
+    
     return pd.read_csv(file_path)
 
 df_amc = load_data()
