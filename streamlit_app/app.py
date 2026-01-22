@@ -17,7 +17,8 @@ st.write("Explore song clusters based on audio features")
 
 @st.cache_data
 def load_data():
-    return pd.read_csv(r"D:\WORKOUTS\DATA_CLEANING\Dataset CSV\single_genre_artists.csv")  # keep CSV near app.py
+    file_path = os.path.join(os.path.dirname(__file__), "single_genre_artists.csv")
+    return pd.read_csv(file_path)
 
 df_amc = load_data()
 
