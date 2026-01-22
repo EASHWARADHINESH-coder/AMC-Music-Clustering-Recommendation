@@ -80,7 +80,6 @@ if st.button("Recommend Similar Songs"):
 
 st.write(df_amc.columns)
 
-<<<<<<< HEAD
 # Add cluster column if missing
 
 cluster_features = [col for col in [
@@ -96,8 +95,6 @@ if 'cluster' not in df_amc.columns:
     kmeans = KMeans(n_clusters=4, random_state=42)  # change n_clusters as needed
     df_amc['cluster'] = kmeans.fit_predict(df_amc[cluster_features])
 
-=======
->>>>>>> df5189f (Updated project with latest changes)
 # SAFETY CHECK
 
 required_cols = ['cluster', 'tempo', 'popularity_songs']
