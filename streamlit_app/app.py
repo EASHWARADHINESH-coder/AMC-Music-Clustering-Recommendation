@@ -21,10 +21,36 @@ def load_data():
 
 df_amc = load_data()
 
+# Add cluster column if missing
+
+cluster_features = [col for col in [
+    'danceability', 'energy', 'loudness', 'speechiness',
+    'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo'
+] if col in df_amc.columns]
+
+if not cluster_features:
+    st.error("❌ None of the clustering features exist in the CSV!")
+    st.stop()
+
+if 'cluster' not in df_amc.columns:
+    kmeans = KMeans(n_clusters=4, random_state=42)  # change n_clusters as needed
+    df_amc['cluster'] = kmeans.fit_predict(df_amc[cluster_features])
+
 # RECOMMENDATION SYSTEM
 
 def recommend_songs(song_name, df, top_n=5):
-    cluster = df[df["name_song"] == song_name]["cluster"].values[0]
+
+    if "cluster" not in df.columns:
+        st.error("❌ Cluster column not created yet")
+        return pd.DataFrame()
+
+    song_row = df[df["name_song"] == song_name]
+
+    if song_row.empty:
+        st.error("❌ Song not found")
+        return pd.DataFrame()
+
+    cluster = song_row["cluster"].values[0]
 
     recommendations = (
         df[df["cluster"] == cluster]
@@ -52,9 +78,9 @@ if st.button("Recommend Similar Songs"):
         recs[["name_song", "name_artists", "popularity_songs"]]
     )
 
-
 st.write(df_amc.columns)
 
+<<<<<<< HEAD
 # Add cluster column if missing
 
 cluster_features = [col for col in [
@@ -70,6 +96,8 @@ if 'cluster' not in df_amc.columns:
     kmeans = KMeans(n_clusters=4, random_state=42)  # change n_clusters as needed
     df_amc['cluster'] = kmeans.fit_predict(df_amc[cluster_features])
 
+=======
+>>>>>>> df5189f (Updated project with latest changes)
 # SAFETY CHECK
 
 required_cols = ['cluster', 'tempo', 'popularity_songs']
