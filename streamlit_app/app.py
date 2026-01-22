@@ -2,9 +2,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
-import os
 
-# PAGE CONFIG
+# ---------------- PAGE CONFIG ----------------
 
 st.set_page_config(
     page_title="AMC Music Clustering Dashboard",
@@ -14,104 +13,57 @@ st.set_page_config(
 st.title("🎧 AMC Music Clustering Dashboard")
 st.write("Explore song clusters based on audio features")
 
-# LOAD DATA
+# ---------------- CSV UPLOAD ----------------
 
-@st.cache_data
-def load_data():
-    file_path = os.path.join(os.path.dirname(__file__), "single_genre_artists.csv")
-    
-    # Check if file exists before reading
-    if not os.path.exists(file_path):
-        st.error(f"CSV file not found at: {file_path}")
-        return pd.DataFrame()  # return empty DataFrame to avoid crashes
-    
-    return pd.read_csv(file_path)
+st.subheader("📂 Upload Dataset")
 
-df_amc = load_data()
-
-# Add cluster column if missing
-
-cluster_features = [col for col in [
-    'danceability', 'energy', 'loudness', 'speechiness',
-    'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo'
-] if col in df_amc.columns]
-
-if not cluster_features:
-    st.error("❌ None of the clustering features exist in the CSV!")
-    st.stop()
-
-if 'cluster' not in df_amc.columns:
-    kmeans = KMeans(n_clusters=4, random_state=42)  # change n_clusters as needed
-    df_amc['cluster'] = kmeans.fit_predict(df_amc[cluster_features])
-
-# RECOMMENDATION SYSTEM
-
-def recommend_songs(song_name, df, top_n=5):
-
-    if "cluster" not in df.columns:
-        st.error("❌ Cluster column not created yet")
-        return pd.DataFrame()
-
-    song_row = df[df["name_song"] == song_name]
-
-    if song_row.empty:
-        st.error("❌ Song not found")
-        return pd.DataFrame()
-
-    cluster = song_row["cluster"].values[0]
-
-    recommendations = (
-        df[df["cluster"] == cluster]
-        .sort_values("popularity_songs", ascending=False)
-        .head(top_n)
-    )
-
-    return recommendations
-
-st.markdown("---")
-st.subheader("🎶 Song Recommendation")
-
-song_selected = st.selectbox(
-    "Select a song",
-    df_amc["name_song"].unique()
+uploaded_file = st.file_uploader(
+    "Upload the CSV file (Amazon Music dataset)",
+    type="csv"
 )
 
-top_n = st.slider("Number of recommendations", 1, 10, 5)
-
-if st.button("Recommend Similar Songs"):
-    recs = recommend_songs(song_selected, df_amc, top_n)
-
-    st.success("Recommended songs from the same cluster:")
-    st.dataframe(
-        recs[["name_song", "name_artists", "popularity_songs"]]
-    )
-
-st.write(df_amc.columns)
-
-# Add cluster column if missing
-
-cluster_features = [col for col in [
-    'danceability', 'energy', 'loudness', 'speechiness',
-    'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo'
-] if col in df_amc.columns]
-
-if not cluster_features:
-    st.error("❌ None of the clustering features exist in the CSV!")
+if uploaded_file is None:
+    st.warning("Please upload the CSV file to proceed.")
     st.stop()
 
-if 'cluster' not in df_amc.columns:
-    kmeans = KMeans(n_clusters=4, random_state=42)  # change n_clusters as needed
-    df_amc['cluster'] = kmeans.fit_predict(df_amc[cluster_features])
+df_amc = pd.read_csv(uploaded_file)
+st.success("CSV loaded successfully!")
 
-# SAFETY CHECK
+# ---------------- REQUIRED COLUMNS CHECK ----------------
 
-required_cols = ['cluster', 'tempo', 'popularity_songs']
-for col in required_cols:
-    if col not in df_amc.columns:
-        st.error(f"❌ Missing column: {col}")
-        st.stop()
+required_columns = [
+    'name_song', 'name_artists', 'popularity_songs',
+    'danceability', 'energy', 'loudness', 'speechiness',
+    'acousticness', 'instrumentalness', 'liveness',
+    'valence', 'tempo'
+]
 
-# SIDEBAR FILTER
+missing_cols = [col for col in required_columns if col not in df_amc.columns]
+
+if missing_cols:
+    st.error(f"❌ Missing required columns: {missing_cols}")
+    st.stop()
+
+# ---------------- CLUSTER FEATURES ----------------
+
+cluster_features = [
+    'danceability', 'energy', 'loudness', 'speechiness',
+    'acousticness', 'instrumentalness', 'liveness',
+    'valence', 'tempo'
+]
+
+# ---------------- APPLY KMEANS ----------------
+
+@st.cache_data
+def apply_kmeans(data, features, n_clusters=4):
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    data = data.copy()
+    data['cluster'] = kmeans.fit_predict(data[features])
+    return data
+
+df_amc = apply_kmeans(df_amc, cluster_features)
+
+# ---------------- SIDEBAR ----------------
 
 st.sidebar.header("🎚 Filter Options")
 
@@ -120,36 +72,23 @@ cluster_selected = st.sidebar.selectbox(
     sorted(df_amc['cluster'].unique())
 )
 
-# FEATURES (MATCH NOTEBOOK)
-
-features = [
-    'duration_ms',       # minutes (converted in notebook)
-    'danceability',
-    'energy',
-    'loudness',
-    'speechiness',
-    'acousticness',
-    'instrumentalness',
-    'liveness',
-    'valence',
-    'tempo',
-]
-
 cluster_data = df_amc[df_amc['cluster'] == cluster_selected]
 
-# CLUSTER OVERVIEW
+# ---------------- CLUSTER OVERVIEW ----------------
 
 st.subheader(f"📌 Cluster {cluster_selected} Overview")
-st.caption("Note: Duration is in **minutes**, not milliseconds")
-st.dataframe(cluster_data[features].describe().T)
 
-# TOP TRACKS
+st.dataframe(
+    cluster_data[cluster_features].describe().T.round(2)
+)
+
+# ---------------- TOP TRACKS ----------------
 
 st.subheader("🔥 Top Tracks in This Cluster")
 
 top_tracks = (
     cluster_data
-    .sort_values(by='popularity_songs', ascending=False)
+    .sort_values(by="popularity_songs", ascending=False)
     .head(10)
 )
 
@@ -157,27 +96,45 @@ st.dataframe(
     top_tracks[['name_song', 'name_artists', 'popularity_songs']]
 )
 
-# SONG RECOMMENDATION SYSTEM
+# ---------------- RECOMMENDATION SYSTEM ----------------
+
+def recommend_songs(song_name, df, top_n=5):
+    song_row = df[df['name_song'] == song_name]
+
+    if song_row.empty:
+        return pd.DataFrame()
+
+    cluster = song_row['cluster'].values[0]
+
+    recommendations = (
+        df[df['cluster'] == cluster]
+        .sort_values(by='popularity_songs', ascending=False)
+        .head(top_n)
+    )
+
+    return recommendations
 
 st.subheader("🎶 Recommend Similar Songs")
 
-song = st.selectbox(
+song_selected = st.selectbox(
     "Select a song",
-    df_amc["name_song"].unique(),
-    key="song_recommend_selectbox"
+    df_amc['name_song'].unique()
 )
 
+top_n = st.slider("Number of recommendations", 1, 10, 5)
 
-if st.button("Recommend Similar Songs", key="recommend_button"):
-    recs = recommend_songs(song, df_amc)
+if st.button("Recommend"):
+    recs = recommend_songs(song_selected, df_amc, top_n)
 
-    st.success("Here are some similar songs you may like:")
-    st.dataframe(
-        recs[['name_song', 'name_artists', 'popularity_songs']]
-    )
+    if recs.empty:
+        st.error("Song not found!")
+    else:
+        st.success("Recommended songs:")
+        st.dataframe(
+            recs[['name_song', 'name_artists', 'popularity_songs']]
+        )
 
-
-# TEMPO DISTRIBUTION
+# ---------------- TEMPO DISTRIBUTION ----------------
 
 st.subheader("🎵 Tempo Distribution")
 
@@ -186,16 +143,22 @@ ax.hist(cluster_data['tempo'], bins=20)
 ax.set_xlabel("Tempo (BPM)")
 ax.set_ylabel("Count")
 st.pyplot(fig)
-plt.close(fig)  # 🔴 IMPORTANT FIX
+plt.close(fig)
 
-# CLUSTER SUMMARY
+# ---------------- CLUSTER SUMMARY ----------------
 
 st.subheader("📊 Cluster-wise Feature Summary")
 
-cluster_summary = df_amc.groupby('cluster')[features].mean().round(2)
+cluster_summary = (
+    df_amc
+    .groupby('cluster')[cluster_features]
+    .mean()
+    .round(2)
+)
+
 st.dataframe(cluster_summary)
 
-# DOWNLOAD OPTION
+# ---------------- DOWNLOAD ----------------
 
 st.subheader("⬇ Download Clustered Dataset")
 
@@ -206,8 +169,7 @@ st.download_button(
     mime="text/csv"
 )
 
-# FOOTER
+# ---------------- FOOTER ----------------
 
 st.markdown("---")
-st.caption("AMC Music Clustering Dashboard • PCA + KMeans")
-
+st.caption("AMC Music Clustering Dashboard • KMeans • Streamlit")
