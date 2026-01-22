@@ -1,4 +1,4 @@
- 🎧 Amazon Music Clustering & Recommendation System
+## 🎧 Amazon Music Clustering & Recommendation System
 
 ## 📌 Overview
 The **Amazon Music Clustering & Recommendation System** is an **unsupervised machine learning** project that groups songs based on their audio characteristics and recommends similar tracks using **cluster similarity**.
