@@ -1,171 +1,147 @@
-🎧 Amazon Music Clustering & Recommendation System
-📌 Project Overview
+# 🎧 Amazon Music Clustering & Recommendation System
 
-The Amazon Music Clustering & Recommendation System is an unsupervised machine learning project that groups songs based on their audio characteristics and provides song recommendations using cluster similarity.
+## 📌 Overview
+The **Amazon Music Clustering & Recommendation System** is an **unsupervised machine learning** project that groups songs based on their audio characteristics and recommends similar tracks using **cluster similarity**.
 
-Instead of relying on user history, this system leverages content-based features such as rhythm, mood, and energy to identify similar songs. The final solution is deployed as an interactive Streamlit dashboard.
+Unlike traditional recommendation systems that rely on user listening history, this project follows a **content-based approach**, leveraging intrinsic audio features such as mood, rhythm, and energy.  
+The final solution is deployed as an **interactive Streamlit dashboard** for easy exploration and recommendations.
 
-🎯 Problem Statement
+---
 
-With a large number of songs available on music platforms, discovering similar music becomes challenging.
+## 🎯 Problem Statement
+With millions of songs available on music streaming platforms, discovering similar and relevant music is increasingly difficult.
+
 This project aims to:
+- Automatically cluster songs based on audio features
+- Identify hidden musical patterns
+- Recommend similar songs without user history
+- Provide an interactive visualization dashboard
 
-Automatically cluster songs based on audio features
+---
 
-Understand musical patterns within each cluster
+## 📊 Dataset Description
+- **Total Songs:** ~95,000
+- **Source:** Amazon Music Dataset
+- **Type:** Audio features + metadata
 
-Recommend similar songs using clustering results
+### 🎵 Audio Features Used
+- **Danceability** – Suitability of a track for dancing  
+- **Energy** – Intensity and activity level  
+- **Tempo** – Speed of the track (BPM)  
+- **Valence** – Musical positivity (happy vs sad)  
+- **Acousticness** – Presence of acoustic elements  
+- **Loudness** – Overall sound intensity  
+- **Speechiness** – Presence of spoken words  
+- **Instrumentalness** – Instrumental dominance  
+- **Liveness** – Audience presence detection  
+
+### 📌 Additional Metadata
+- Song name  
+- Artist name  
+- Popularity score  
+- Duration (converted from milliseconds to minutes)  
+- Release date  
 
-Provide an interactive visualization dashboard
+---
 
-📊 Dataset Description
+## 🧠 Methodology
 
-The dataset contains ~95,000 songs with detailed audio and metadata attributes.
+### 1️⃣ Data Preprocessing
+- Removed duplicate records
+- Verified and handled missing values
+- Converted song duration from milliseconds → minutes
+- Dropped non-relevant identifiers (IDs, names)
+- Selected only numerical audio features
 
-Key Audio Features Used
+---
 
-Danceability – How suitable a track is for dancing
+### 2️⃣ Feature Scaling
+- Applied **StandardScaler**
+- Ensured equal contribution from all features
+- Improved performance of distance-based algorithms
 
-Energy – Intensity and activity level
+---
 
-Tempo – Speed of the track (BPM)
+### 3️⃣ Dimensionality Reduction (PCA)
+- Applied **Principal Component Analysis (PCA)**
+- Reduced features to **2 principal components** for visualization
+- Retained maximum variance
 
-Valence – Musical positivity (happy vs sad)
+**Benefits of PCA:**
+- Improved cluster visualization
+- Reduced computational complexity
 
-Acousticness – Presence of acoustic elements
+---
 
-Loudness – Overall sound intensity
+### 4️⃣ Clustering Techniques
 
-Speechiness – Presence of spoken words
+#### 🔹 KMeans Clustering
+- Used **Elbow Method** to determine optimal clusters
+- Evaluated using **Silhouette Score**
+- Final model trained with **4 clusters**
 
-Instrumentalness – Instrumental dominance
+#### 🔹 DBSCAN (Exploratory)
+- Used to identify outliers
+- Compared density-based clustering behavior
 
-Liveness – Audience presence detection
+---
 
-Other Metadata
+### 5️⃣ Cluster Evaluation
+- Used **Silhouette Score** to measure cluster separation
+- Calculated cluster-wise average feature values
+- Visualized results using heatmaps and bar charts
 
-Song name
+---
 
-Artist name
+## 🎼 Cluster Profiling & Interpretation
 
-Popularity score
+| Cluster | Description |
+|-------|------------|
+| Cluster 0 | Calm / Mixed Mood |
+| Cluster 1 | Workout / Feel-Good |
+| Cluster 2 | Speech-Heavy / Experimental |
+| Cluster 3 | Chill Acoustic |
 
-Duration (converted from milliseconds to minutes)
+Clusters were labeled based on dominant audio characteristics such as **energy, acousticness, and valence**.
 
-Release date
+---
 
-🧠 Methodology
-1️⃣ Data Preprocessing
+## 🎶 Recommendation System
 
-Removed duplicates and verified missing values
+### 🔍 Approach: Content-Based Recommendation
+- User selects a song
+- System identifies the song’s cluster
+- Recommends **top popular songs from the same cluster**
 
-Converted duration from milliseconds → minutes
+**Advantages:**
+- ✔ No user history required  
+- ✔ Fast and interpretable  
+- ✔ Scalable for large datasets  
 
-Dropped non-relevant identifiers (song ID, artist ID, names)
+---
 
-Selected only numerical audio features
+## 📊 Streamlit Dashboard Features
+- 🎵 Song selection & recommendations  
+- 📌 Cluster-wise song exploration  
+- 🔥 Top tracks per cluster  
+- 📊 Audio feature statistics and summaries  
+- 🎶 Tempo distribution visualization  
+- ⬇ Download clustered dataset as CSV  
 
-2️⃣ Feature Scaling
+---
 
-Used StandardScaler to normalize all audio features so that:
+## 🛠 Tech Stack
+- **Programming Language:** Python  
+- **Data Processing:** Pandas, NumPy  
+- **Machine Learning:** Scikit-learn  
+- **Visualization:** Matplotlib, Seaborn  
+- **Web Application:** Streamlit  
 
-Each feature contributes equally to clustering
+---
 
-Distance-based algorithms perform correctly
+## 📁 Project Structure
 
-3️⃣ Dimensionality Reduction (PCA)
-
-Applied Principal Component Analysis (PCA)
-
-Reduced data to 2 components for visualization
-
-Retained maximum variance while simplifying analysis
-
-📌 PCA helped in:
-
-Visualizing clusters
-
-Reducing computational complexity
-
-4️⃣ Clustering Techniques
-🔹 KMeans Clustering
-
-Used Elbow Method to identify optimal clusters
-
-Evaluated using Silhouette Score
-
-Final model trained with 4 clusters
-
-🔹 DBSCAN (Exploratory)
-
-Used to detect potential outliers
-
-Compared density-based clustering behavior
-
-5️⃣ Cluster Evaluation
-
-Silhouette Score used to measure cluster separation
-
-Cluster-wise feature averages calculated
-
-Heatmaps and bar charts used for interpretation
-
-🎼 Cluster Profiling & Interpretation
-
-Each cluster represents a distinct musical style:
-
-Cluster	Description
-Cluster 0	Calm / Mixed Mood
-Cluster 1	Workout / Feel-Good
-Cluster 2	Speech-Heavy / Experimental
-Cluster 3	Chill Acoustic
-
-Clusters were labeled using average audio feature values such as energy, acousticness, and valence.
-
-🎶 Recommendation System
-
-A content-based recommendation approach is implemented:
-
-How it Works
-
-User selects a song
-
-System identifies the song’s cluster
-
-Recommends top popular songs from the same cluster
-
-✔ No user history required
-✔ Fast and interpretable
-
-📊 Streamlit Dashboard Features
-
-The project includes an interactive Streamlit web app with:
-
-🎵 Song selection & recommendations
-
-📌 Cluster-wise song exploration
-
-🔥 Top tracks per cluster
-
-📊 Feature statistics and summaries
-
-🎶 Tempo distribution visualization
-
-⬇ Download clustered dataset as CSV
-
-🛠 Tech Stack
-
-Programming Language: Python
-
-Data Handling: Pandas, NumPy
-
-Machine Learning: Scikit-learn
-
-Visualization: Matplotlib, Seaborn
-
-Deployment: Streamlit
-
-📁 Project Structure
+```
 Amazon-Music-Clustering-Recommendation/
 │
 ├── data/
@@ -174,7 +150,9 @@ Amazon-Music-Clustering-Recommendation/
 ├── notebooks/
 │   └── amazon_music_clustering.ipynb
 │
-├── app.py
+├── streamlit_app/
+│   └── app.py
+│
 ├── reports/
 │   └── amazon_music_clustering.pdf
 │
@@ -182,30 +160,32 @@ Amazon-Music-Clustering-Recommendation/
 │   ├── AMC_Music_Clustered_Final.csv
 │   └── AMC_Cluster_Profiles.csv
 │
+├── requirements.txt
+├── LICENSE
 └── README.md
+```
 
-📈 Results & Insights
+---
 
-Songs naturally group based on mood and intensity
+## 📈 Results & Insights
+- Songs naturally group based on **mood and intensity**
+- High-energy tracks form workout-focused clusters
+- Acoustic and low-energy tracks form chill clusters
+- Clustering improves recommendation relevance
 
-High-energy tracks form workout clusters
+---
 
-Acoustic and low-energy songs form chill clusters
+## 🔮 Future Enhancements
+- 🎧 Integration with real-time music APIs  
+- 🧠 Deep learning–based song embeddings  
+- 👤 User-based and hybrid recommendation systems  
+- 🎼 Genre-aware clustering  
+- ☁ Cloud deployment  
 
-Clustering improves recommendation relevance
+---
 
-🔮 Future Enhancements
+## ✅ Conclusion
+This project demonstrates how **unsupervised machine learning** can be used to uncover musical patterns and build a **content-based music recommendation system**.  
+The **Streamlit dashboard** makes the system interactive, interpretable, and practical for real-world use.
 
-🎧 Integration with real-time music APIs
-
-🧠 Deep learning–based song embeddings
-
-👤 User-based & hybrid recommendation systems
-
-🎼 Genre-aware clustering
-
-📱 Deployment on cloud platforms
-
-✅ Conclusion
-
-This project demonstrates how unsupervised machine learning can be effectively used to analyze music patterns and build a content-based recommendation system. The Streamlit dashboard makes the model interpretable, interactive, and user-friendly.
+---
